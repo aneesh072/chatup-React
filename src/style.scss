@@ -190,14 +190,26 @@
         color: lightgray;
       }
 
-      .chatIcons{
+      .chatIcons {
         display: flex;
         gap: 10px;
 
-        img{
+        img {
           height: 24px;
           cursor: pointer;
         }
+      }
+
+      .messages {
+        background-color: #ddddff;
+        padding: 10px;
+        height: calc(100% - 160px);
+      }
+
+      .input {
+        height: 50px;
+        background-color: white;
+        padding: 10px;
       }
     }
   }
