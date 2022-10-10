@@ -4,9 +4,11 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, storage, db } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [err, setErr] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,10 +42,13 @@ const Register = () => {
               email,
               photoURL: downloadURL,
             });
+
+            await setDoc(doc(db, 'userChats', res.user.uid), {});
+            navigate('/');
           });
         }
       );
-    } catch (error) {
+    } catch (err) {
       setErr(true);
     }
   };
