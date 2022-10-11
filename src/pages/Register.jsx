@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Add from '../assets/addAvatar.png';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth, storage, db } from '../firebase';
+import { auth, db, storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
   const [err, setErr] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,24 +19,22 @@ const Register = () => {
     const file = e.target[3].files[0];
 
     try {
+      //Create user
       const res = await createUserWithEmailAndPassword(auth, email, password);
 
-      const storageRef = ref(storage, displayName);
+      //Create a unique image name
+      const date = new Date().getTime();
+      const storageRef = ref(storage, `${displayName + date}`);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      //Register the observer
-      uploadTask.on(
-        (error) => {
-          // Handle unsuccessful uploads
-          setErr(true);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+      await uploadBytesResumable(storageRef, file).then(() => {
+        getDownloadURL(storageRef).then(async (downloadURL) => {
+          try {
+            //Update profile
             await updateProfile(res.user, {
               displayName,
               photoURL: downloadURL,
             });
+            //create user on firestore
             await setDoc(doc(db, 'users', res.user.uid), {
               uid: res.user.uid,
               displayName,
@@ -43,34 +42,41 @@ const Register = () => {
               photoURL: downloadURL,
             });
 
+            //create empty user chats on firestore
             await setDoc(doc(db, 'userChats', res.user.uid), {});
             navigate('/');
-          });
-        }
-      );
+          } catch (err) {
+            console.log(err);
+            setErr(true);
+
+          }
+        });
+      });
     } catch (err) {
       setErr(true);
+
     }
   };
+
   return (
     <div className="formContainer">
       <div className="formWrapper">
-        <span className="logo">Lets Chat</span>
+        <span className="logo">Lama Chat</span>
         <span className="title">Register</span>
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
-          <input type="file" id="file" style={{ display: 'none' }} />
+          <input required type="text" placeholder="display name" />
+          <input required type="email" placeholder="email" />
+          <input required type="password" placeholder="password" />
+          <input style={{ display: 'none' }} type="file" id="file" />
           <label htmlFor="file">
-            <img src={Add} alt="add" />
+            <img src={Add} alt="" />
             <span>Add an avatar</span>
           </label>
-          <button>Sign Up</button>
-          {err && <span>Somethings went wrong</span>}
+          <button>Sign up</button>
+          {err && <span>Something went wrong</span>}
         </form>
         <p>
-          You do have an account? <Link to="/login">Login!</Link>
+          You do have an account? <Link to="/register">Login</Link>
         </p>
       </div>
     </div>

@@ -103,6 +103,10 @@
     @include table {
       width: 95%;
     }
+    .chats {
+        height: calc(100% - 160px);
+        overflow-y: scroll;
+    }
 
     .sidebar {
       flex: 1;

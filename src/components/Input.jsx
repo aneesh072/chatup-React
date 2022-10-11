@@ -74,6 +74,10 @@ const Input = () => {
     setImg(null);
   };
 
+  const handleKey = (e) => {
+    e.code === 'Enter' && handleSend();
+  };
+
   return (
     <div className="input">
       <input
@@ -93,7 +97,9 @@ const Input = () => {
         <label htmlFor="file">
           <img src={Img} alt="" />
         </label>
-        <button onClick={handleSend}>Send</button>
+        <button onClick={handleSend} onKeyDown={handleKey}>
+          Send
+        </button>
       </div>
     </div>
   );
