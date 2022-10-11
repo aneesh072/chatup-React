@@ -1,24 +1,23 @@
 import React, { useContext, useState } from 'react';
 import {
   collection,
-  getDoc,
-  getDocs,
   query,
+  where,
+  getDocs,
   setDoc,
   doc,
-  where,
   updateDoc,
   serverTimestamp,
+  getDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
-
 const Search = () => {
   const [username, setUsername] = useState('');
   const [user, setUser] = useState(null);
   const [err, setErr] = useState(false);
 
-  const currentUser = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
 
   const handleSearch = async () => {
     const q = query(
@@ -31,7 +30,7 @@ const Search = () => {
       querySnapshot.forEach((doc) => {
         setUser(doc.data());
       });
-    } catch (error) {
+    } catch (err) {
       setErr(true);
     }
   };
@@ -39,6 +38,7 @@ const Search = () => {
   const handleKey = (e) => {
     e.code === 'Enter' && handleSearch();
   };
+
   const handleSelect = async () => {
     //check whether the group(chats in firestore) exists, if not create
     const combinedId =
@@ -76,7 +76,6 @@ const Search = () => {
     setUser(null);
     setUsername('');
   };
-
   return (
     <div className="search">
       <div className="searchForm">
@@ -88,10 +87,10 @@ const Search = () => {
           value={username}
         />
       </div>
-      {err && <span>User not found</span>}
+      {err && <span>User not found!</span>}
       {user && (
         <div className="userChat" onClick={handleSelect}>
-          <img src={user.photoURL} />
+          <img src={user.photoURL} alt="" />
           <div className="userChatInfo">
             <span>{user.displayName}</span>
           </div>
